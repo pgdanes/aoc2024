@@ -42,8 +42,6 @@ pub fn solve_b(input: String) {
   let assert Ok(#(left, right)) = parse(input)
 
   left
-  |> list.map(fn(x) { 
-    x * list.count(right, fn(y) { x == y }) 
-  })
+  |> list.map(fn(x) { x * list.count(right, fn(y) { x == y }) })
   |> int.sum()
 }
