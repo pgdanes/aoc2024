@@ -3,29 +3,25 @@ import gleam/list
 import gleam/string
 
 pub fn solve(input: String) {
-  let lists = parse(input)
+  let assert Ok(#(left, right)) = parse(input)
 
-  let sorted = lists
-    |> list.map(list.sort(_, by: int.compare))
+  let left_sorted = list.sort(left, by: int.compare)
+  let right_sorted = list.sort(right, by: int.compare)
 
-  let diff = case sorted {
-    [[_, ..] as first, [_, ..] as second] -> {
-      Ok(list.map2(first, second, fn(x, y) { int.absolute_value(y - x) }))
-    }
-    _ -> Error("more than two lists given")
-  }
-
-  case diff {
-    Ok(list) -> int.sum(list)
-    _ -> 0 
-  }
+  let diff = list.map2(left_sorted, right_sorted, fn(x, y) { int.absolute_value(y - x) })
+  int.sum(diff)
 }
 
 pub fn parse(input: String) {
-  input 
+  let lists = input 
     |> string.split("\n")
     |> list.filter_map(parse_pair)
     |> list.transpose()
+
+  case lists {
+    [[_, ..] as first, [_, ..] as second] -> Ok(#(first, second))
+    _ -> Error("more than two lists parsed")
+  }
 }
 
 pub fn parse_pair(input: String) {
@@ -39,3 +35,8 @@ pub fn parse_pair(input: String) {
     _ -> Error("invalid pair")
   }
 }
+
+// pub fn solve_b(input: String) {
+//   let assert Ok(#(left, right)) = parse(input)
+//
+// }
