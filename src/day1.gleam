@@ -4,13 +4,11 @@ import gleam/string
 
 pub fn solve(input: String) {
   let assert Ok(#(left, right)) = parse(input)
-
   let left_sorted = list.sort(left, by: int.compare)
   let right_sorted = list.sort(right, by: int.compare)
 
-  let diff =
-    list.map2(left_sorted, right_sorted, fn(x, y) { int.absolute_value(y - x) })
-  int.sum(diff)
+  list.map2(left_sorted, right_sorted, fn(x, y) { int.absolute_value(y - x) })
+  |> int.sum()
 }
 
 pub fn parse(input: String) {

@@ -26,23 +26,20 @@ pub fn parse(input: String) {
 }
 
 fn make_combinations(report: List(Int)) -> List(List(Int)) {
-  let len = list.length(report)
-
-  list.combinations(report, len - 1)
+  report |> list.combinations(list.length(report) - 1)
 }
 
 pub fn is_safe(report: List(Int)) -> Bool {
-  is_safe_dist_rec(report, True) && is_consistent_direction(report)
+  is_safe_dist(report) && is_consistent_direction(report)
 }
 
-fn is_safe_dist_rec(report: List(Int), acc: Bool) -> Bool {
-  case report, acc {
-    _, False -> False
-    [], result -> result
-    [_], result -> result
-    [head, next, ..rest], _ ->
-      is_safe_dist_rec([next, ..rest], is_safe_diff(head, next))
-  }
+fn is_safe_dist(report: List(Int)) -> Bool {
+  report
+  |> list.window_by_2()
+  |> list.fold(True, fn(result, x) {
+    let #(x, y) = x
+    result && is_safe_diff(x, y)
+  })
 }
 
 fn is_safe_diff(x, y: Int) {
