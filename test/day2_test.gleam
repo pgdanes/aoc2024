@@ -1,5 +1,4 @@
 import day2
-import gleam/io
 import gleeunit/should
 
 pub fn day2_a_test() {
@@ -12,6 +11,18 @@ pub fn day2_a_test() {
 1 3 6 7 9"
 
   in |> day2.solve |> should.equal(2)
+}
+
+pub fn day2_b_test() {
+  let in =
+    "7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9"
+
+  in |> day2.solve_b |> should.equal(4)
 }
 
 pub fn day2_a_dir_test() {

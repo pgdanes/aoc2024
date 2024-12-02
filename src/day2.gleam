@@ -8,11 +8,27 @@ pub fn solve(input: String) {
   |> list.count(fn(x) { x == True })
 }
 
+pub fn solve_b(input: String) {
+  parse(input)
+  |> list.map(fn(report) {
+    make_combinations(report)
+    |> list.map(is_safe)
+    |> list.any(fn(x) { x == True })
+  })
+  |> list.count(fn(x) { x == True })
+}
+
 pub fn parse(input: String) {
   input
   |> string.split("\n")
   |> list.map(string.split(_, " "))
   |> list.map(list.filter_map(_, int.base_parse(_, 10)))
+}
+
+fn make_combinations(report: List(Int)) -> List(List(Int)) {
+  let len = list.length(report)
+
+  list.combinations(report, len - 1)
 }
 
 pub fn is_safe(report: List(Int)) -> Bool {
