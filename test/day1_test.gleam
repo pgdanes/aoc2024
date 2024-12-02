@@ -1,5 +1,4 @@
 import day1
-import gleam/io
 import gleeunit/should
 
 pub fn day1_a_test() {
@@ -26,7 +25,7 @@ pub fn day1_real_subset_test() {
 54871   96958
 97276   63446"
   |> day1.solve()
-  |> io.debug()
+  |> should.equal(40_319)
 }
 
 pub fn day1_b_test() {
