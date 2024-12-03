@@ -1,3 +1,4 @@
+import simplifile
 import day3
 import gleam/io
 import gleam/list
@@ -11,6 +12,11 @@ pub fn day3_solve_test() {
   in
   |> day3.solve
   |> should.equal(161)
+}
+
+pub fn day3_real_test() {
+  let assert Ok(input) = simplifile.read(from: "test/inputs/day3")
+  input |> day3.solve() |> io.debug()
 }
 
 pub fn day3_parse_test() {
