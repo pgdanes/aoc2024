@@ -1,6 +1,6 @@
-import gleam/list
 import day3
 import gleam/io
+import gleam/list
 import gleam/option.{None, Some}
 import gleeunit/should
 
