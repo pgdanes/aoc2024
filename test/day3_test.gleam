@@ -1,3 +1,4 @@
+import gleam/list
 import day3
 import gleam/io
 import gleam/option.{None, Some}
@@ -18,6 +19,7 @@ pub fn day3_parse_test() {
 
   in
   |> day3.parse
+  |> list.reverse()
   |> should.equal([#(2, 4), #(5, 5), #(11, 8), #(8, 5)])
 }
 

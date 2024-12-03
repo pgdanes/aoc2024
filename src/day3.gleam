@@ -14,7 +14,6 @@ pub fn solve(input: String) {
 
 pub fn parse(input: String) {
   parse_rec(input, [])
-  |> list.reverse()
   |> list.map(fn(pair) {
     let #(x, y) = pair
     let assert #(Ok(x_num), Ok(y_num)) = #(int.parse(x), int.parse(y))
