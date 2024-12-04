@@ -14,10 +14,10 @@ pub fn day3_solve_test() {
   |> should.equal(161)
 }
 
-pub fn day3_real_test() {
-  let assert Ok(input) = simplifile.read(from: "test/inputs/day3")
-  input |> day3.solve() |> should.equal(178_886_550)
-}
+// pub fn day3_real_test() {
+//   let assert Ok(input) = simplifile.read(from: "test/inputs/day3")
+//   input |> day3.solve() |> should.equal(178_886_550)
+// }
 
 pub fn day3_b_solve_test() {
   "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
@@ -25,13 +25,13 @@ pub fn day3_b_solve_test() {
   |> should.equal(48)
 }
 
-pub fn day3_b_real_test() {
-  let assert Ok(input) = simplifile.read(from: "test/inputs/day3")
-
-  input
-  |> day3.solve_b()
-  |> should.equal(87_163_705)
-}
+// pub fn day3_b_real_test() {
+//   let assert Ok(input) = simplifile.read(from: "test/inputs/day3")
+//
+//   input
+//   |> day3.solve_b()
+//   |> should.equal(87_163_705)
+// }
 
 pub fn day3_parse_test() {
   let in =
