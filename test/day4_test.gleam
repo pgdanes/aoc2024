@@ -1,7 +1,7 @@
-import gleam/io
-import simplifile
-import gleeunit/should
 import day4
+import gleam/io
+import gleeunit/should
+import simplifile
 
 //   0        9
 // 0 MMMSXXMASM
@@ -17,7 +17,7 @@ import day4
 
 pub fn day4_solve_test() {
   let in =
-"
+    "
 ....XXMAS.
 .SAMXMS...
 ...S..A...
@@ -39,5 +39,28 @@ pub fn day4_real_test() {
 
   in
   |> day4.solve()
-  |> io.debug
+}
+
+pub fn day4_b_test() {
+"
+.M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+.........."
+  |> day4.solve_b()
+  |> should.equal(9)
+}
+
+pub fn day4_b_real_test() {
+  let assert Ok(in) = simplifile.read(from: "test/inputs/day4")
+
+  in
+  |> day4.solve_b()
+  |> should.equal(1925)
 }

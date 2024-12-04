@@ -1,7 +1,9 @@
+import gleam/bool
 import gleam/dict
 import gleam/int
 import gleam/io
 import gleam/list
+import gleam/result
 import gleam/string
 
 pub fn solve(input: String) {
@@ -12,6 +14,17 @@ pub fn solve(input: String) {
   grid
   |> dict.keys
   |> list.map(fn(cell_point) { check_for_xmas(grid, cell_point) })
+  |> int.sum
+}
+
+pub fn solve_b(input: String) {
+  let grid =
+    input
+    |> parse
+
+  grid
+  |> dict.keys
+  |> list.map(fn(cell_point) { check_for_cross_mas(grid, cell_point) })
   |> int.sum
 }
 
@@ -39,13 +52,6 @@ pub fn check_for_xmas(grid: Grid, cell_origin: Coord) {
   let check_dir = fn(cs: #(Coord, Coord, Coord, Coord)) {
     case get(cs.0), get(cs.1), get(cs.2), get(cs.3) {
       Ok("X"), Ok("M"), Ok("A"), Ok("S") -> {
-        // io.debug(#(
-        //   offset(cell_origin, cs.0.0, cs.0.1),
-        //   offset(cell_origin, cs.1.0, cs.1.1),
-        //   offset(cell_origin, cs.2.0, cs.2.1),
-        //   offset(cell_origin, cs.3.0, cs.3.1),
-        // ))
-        // io.debug(#(get(cs.0), get(cs.1), get(cs.2), get(cs.3)))
         True
       }
       _, _, _, _ -> False
@@ -65,12 +71,30 @@ pub fn check_for_xmas(grid: Grid, cell_origin: Coord) {
     check_dir(#(#(0, 0), #(-1, 1), #(-2, 2), #(-3, 3))),
     check_dir(#(#(0, 0), #(-1, -1), #(-2, -2), #(-3, -3))),
   ]
-  |> list.map(fn(x) {
-    case x {
-      True -> 1
-      False -> 0
+  |> list.map(bool.to_int)
+  |> int.sum
+}
+
+pub fn check_for_cross_mas(grid: Grid, cell_origin: Coord) {
+  let get = fn(c: Coord) { grid |> dict.get(offset(cell_origin, c.0, c.1)) }
+
+  let check_dir = fn(cs: #(Coord, Coord, Coord)) {
+    case get(cs.0), get(cs.1), get(cs.2) {
+      Ok("M"), Ok("A"), Ok("S") -> {
+        True
+      }
+      Ok("S"), Ok("A"), Ok("M") -> {
+        True
+      }
+      _, _, _ -> False
     }
-  })
+  }
+
+  [
+    check_dir(#(#(-1, -1), #(0, 0), #(1, 1)))
+    && check_dir(#(#(-1, 1), #(0, 0), #(1, -1)))
+  ]
+  |> list.map(bool.to_int)
   |> int.sum
 }
 
