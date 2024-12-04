@@ -1,9 +1,7 @@
 import day3.{Multiple}
-import gleam/io
 import gleam/list
 import gleam/option.{None, Some}
 import gleeunit/should
-import simplifile
 
 pub fn day3_solve_test() {
   let in =
