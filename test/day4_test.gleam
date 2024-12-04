@@ -42,7 +42,7 @@ pub fn day4_real_test() {
 }
 
 pub fn day4_b_test() {
-"
+  "
 .M.S......
 ..A..MSMS.
 .M.S.MAA..

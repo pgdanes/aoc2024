@@ -92,7 +92,7 @@ pub fn check_for_cross_mas(grid: Grid, cell_origin: Coord) {
 
   [
     check_dir(#(#(-1, -1), #(0, 0), #(1, 1)))
-    && check_dir(#(#(-1, 1), #(0, 0), #(1, -1)))
+    && check_dir(#(#(-1, 1), #(0, 0), #(1, -1))),
   ]
   |> list.map(bool.to_int)
   |> int.sum
