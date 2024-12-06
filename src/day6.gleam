@@ -1,6 +1,9 @@
-import gleam/io
+import gleam/bool
+import gleam/int
 import gleam/iterator
 import gleam/list
+import gleam/otp/task
+import gleam/result
 import gleam/set
 import gleam/string
 
@@ -14,15 +17,16 @@ pub fn solve_b(input) {
   let map = parse(input)
   let distinct_points = update_until_oob(map, set.new())
 
-  let result =
-    distinct_points
-    |> set.map(fn(p) {
-      let new_set = map.obstructions |> set.insert(p)
-      #(p, update_until_loop(Map(..map, obstructions: new_set), 0))
-    })
-    |> set.filter(fn(x) { x.1 })
-
-  result |> set.size
+  distinct_points
+  |> set.to_list()
+  |> list.map(fn(p) { map.obstructions |> set.insert(p) })
+  |> list.map(fn(new_set) {
+    task.async(fn() { update_until_loop(Map(..map, obstructions: new_set), 0) })
+  })
+  |> task.try_await_all(2)
+  |> list.map(fn(r) { result.unwrap(r, False) })
+  |> list.map(bool.to_int)
+  |> int.sum
 }
 
 pub fn options(map: Map) {
