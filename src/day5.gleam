@@ -2,6 +2,7 @@ import gleam/dict
 import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/order
 import gleam/result
 import gleam/set
 import gleam/string
@@ -10,7 +11,17 @@ pub fn solve(input: String) {
   let page = parse(input)
 
   page.updates
-  |> list.filter(fn(update) { is_valid_update(update, page.rules) })
+  |> list.filter(is_valid_update(_, page.rules))
+  |> list.filter_map(get_middle_number)
+  |> int.sum
+}
+
+pub fn solve_b(input: String) {
+  let page = parse(input)
+
+  page.updates
+  |> list.filter(fn(update) { !is_valid_update(update, page.rules) })
+  |> list.map(sort(_, page.rules))
   |> list.filter_map(get_middle_number)
   |> int.sum
 }
@@ -34,6 +45,19 @@ pub fn is_valid_update(update: Update, rules: OrderingRules) {
     }
     [] -> True
   }
+}
+
+pub fn sort(update: Update, rules: OrderingRules) {
+  let rule_compare = fn(before, after) {
+    let rule = dict.get(rules, before) |> result.unwrap([])
+
+    case list.contains(rule, after) {
+      True -> order.Lt
+      False -> order.Gt
+    }
+  }
+
+  update |> list.sort(by: rule_compare)
 }
 
 pub fn get_middle_number(update: Update) {
