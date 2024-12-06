@@ -1,3 +1,5 @@
+import gleam/io
+import gleam/iterator
 import gleam/list
 import gleam/set
 import gleam/string
@@ -8,8 +10,33 @@ pub fn solve(input) {
   set.size(distinct_points) - 1
 }
 
+pub fn solve_b(input) {
+  let map = parse(input)
+
+  let opts = options(map)
+  let result =
+    opts
+    |> set.map(fn(p) {
+      let new_set = map.obstructions |> set.insert(p)
+      #(p, update_until_loop(Map(..map, obstructions: new_set), 0))
+    })
+    |> set.filter(fn(x) { x.1 })
+
+  result |> set.size
+}
+
+pub fn options(map: Map) {
+  let xs = iterator.range(0, map.width) |> iterator.to_list
+  let ys = iterator.range(0, map.height) |> iterator.to_list
+
+  use s, x <- list.fold(xs, set.new())
+  use s, y <- list.fold(ys, s)
+
+  set.insert(s, Point(x, y))
+}
+
 pub fn parse(input) {
-  let row = input |> string.split("\r\n")
+  let row = input |> string.split("\n")
   let height = row |> list.length()
   use map, row, row_index <- list.index_fold(row, new())
   let width = row |> string.length()
@@ -82,17 +109,28 @@ pub fn update_guard(map: Map) {
 pub fn update_until_oob(map: Map, visited: set.Set(Point)) {
   let map = update_guard(map)
 
-  let guard_pos = map.guard.position
-  let is_guard_oob =
-    guard_pos.x < 0
-    || guard_pos.x > map.width
-    || guard_pos.y < 0
-    || guard_pos.y > map.height
-
-  case is_guard_oob {
+  case is_guard_oob(map) {
     True -> visited
-    False -> update_until_oob(map, set.insert(visited, guard_pos))
+    False -> update_until_oob(map, set.insert(visited, map.guard.position))
   }
+}
+
+pub fn update_until_loop(map: Map, step_count: Int) {
+  let map = update_guard(map)
+
+  case is_guard_oob(map), step_count {
+    True, _ -> False
+    _, steps if steps > map.width * map.height -> True
+    False, steps -> update_until_loop(map, steps + 1)
+  }
+}
+
+pub fn is_guard_oob(map: Map) {
+  let guard_pos = map.guard.position
+  guard_pos.x < 0
+  || guard_pos.x > map.width
+  || guard_pos.y < 0
+  || guard_pos.y > map.height
 }
 
 pub fn rotate(direction) {
