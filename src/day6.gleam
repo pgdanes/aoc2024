@@ -12,10 +12,10 @@ pub fn solve(input) {
 
 pub fn solve_b(input) {
   let map = parse(input)
+  let distinct_points = update_until_oob(map, set.new())
 
-  let opts = options(map)
   let result =
-    opts
+    distinct_points
     |> set.map(fn(p) {
       let new_set = map.obstructions |> set.insert(p)
       #(p, update_until_loop(Map(..map, obstructions: new_set), 0))
