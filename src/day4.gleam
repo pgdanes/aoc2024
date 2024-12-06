@@ -1,7 +1,6 @@
 import gleam/bool
 import gleam/dict
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/result
 import gleam/string
@@ -13,7 +12,7 @@ pub fn solve(input: String) {
 
   grid
   |> dict.keys
-  |> list.map(fn(cell_point) { check_for_xmas(grid, cell_point) })
+  |> list.map(check_for_xmas(grid, _))
   |> int.sum
 }
 
@@ -24,20 +23,15 @@ pub fn solve_b(input: String) {
 
   grid
   |> dict.keys
-  |> list.map(fn(cell_point) { check_for_cross_mas(grid, cell_point) })
+  |> list.map(check_for_cross_mas(grid, _))
   |> int.sum
 }
 
 pub fn parse(input: String) {
-  input
-  |> string.split("\n")
-  |> list.map(string.to_graphemes)
-  |> list.index_map(fn(line, y) {
-    line
-    |> list.index_map(fn(char, x) { #(#(x, y), char) })
-  })
-  |> list.flatten
-  |> dict.from_list
+  let lines = string.split(input, "\n")
+  use grid, line, line_index <- list.index_fold(lines, dict.new())
+  use grid, char, col_index <- list.index_fold(string.to_graphemes(line), grid)
+  dict.insert(grid, #(line_index, col_index), char)
 }
 
 pub type Coord =
