@@ -24,19 +24,9 @@ pub fn solve_b(input) {
     task.async(fn() { update_until_loop(Map(..map, obstructions: new_set), 0) })
   })
   |> task.try_await_all(2)
-  |> list.map(fn(r) { result.unwrap(r, False) })
+  |> list.map(result.unwrap(_, False))
   |> list.map(bool.to_int)
   |> int.sum
-}
-
-pub fn options(map: Map) {
-  let xs = iterator.range(0, map.width) |> iterator.to_list
-  let ys = iterator.range(0, map.height) |> iterator.to_list
-
-  use s, x <- list.fold(xs, set.new())
-  use s, y <- list.fold(ys, s)
-
-  set.insert(s, Point(x, y))
 }
 
 pub fn parse(input) {
