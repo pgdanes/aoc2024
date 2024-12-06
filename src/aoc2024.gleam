@@ -1,8 +1,9 @@
 import day6
-import simplifile
 import gleam/io
+import simplifile
 
 pub type DateTime
+
 // An external function that creates an instance of the type
 @external(erlang, "os", "timestamp")
 pub fn now() -> DateTime
