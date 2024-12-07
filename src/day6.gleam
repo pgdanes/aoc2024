@@ -1,5 +1,6 @@
 import gleam/bool
 import gleam/int
+import gleam/io
 import gleam/iterator
 import gleam/list
 import gleam/otp/task
@@ -21,7 +22,10 @@ pub fn solve_b(input) {
   |> set.to_list()
   |> list.map(fn(p) { map.obstructions |> set.insert(p) })
   |> list.map(fn(new_set) {
-    task.async(fn() { update_until_loop(Map(..map, obstructions: new_set), 0) })
+    let tortoise_map = Map(..map, obstructions: new_set)
+    let hare_map = Map(..map, obstructions: new_set)
+
+    task.async(fn() { update_until_loop(tortoise_map, hare_map, #(0, 0)) })
   })
   |> task.try_await_all(2)
   |> list.map(result.unwrap(_, False))
@@ -109,13 +113,23 @@ pub fn update_until_oob(map: Map, visited: set.Set(Point)) {
   }
 }
 
-pub fn update_until_loop(map: Map, step_count: Int) {
-  let map = update_guard(map)
+pub fn update_until_loop(tortoise_map: Map, hare_map: Map, acc: #(Int, Int)) {
+  let next_tortoise = update_guard(tortoise_map)
+  let next_hare = update_guard(hare_map) |> update_guard()
 
-  case is_guard_oob(map), step_count {
+  // io.debug(#(next_tortoise.guard.position, next_hare.guard.position))
+
+  let is_guard_pos_same =
+    next_tortoise.guard.position == next_hare.guard.position
+
+  case is_guard_oob(next_hare), acc {
     True, _ -> False
-    _, steps if steps > map.width * map.height -> True
-    False, steps -> update_until_loop(map, steps + 1)
+    _, #(2, _) -> True
+    _, #(meet_count, steps) ->
+      update_until_loop(next_tortoise, next_hare, #(
+        meet_count + bool.to_int(is_guard_pos_same),
+        steps + 1,
+      ))
   }
 }
 
