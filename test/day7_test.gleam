@@ -16,14 +16,14 @@ pub fn day7_solve_test() {
   |> io.debug
 }
 
-pub fn day7_solve_real_test() {
-  let assert Ok(in) = simplifile.read(from: "test/inputs/day7")
-
-  in
-  |> day7.solve
-  |> io.debug
-  // |> io.debug
-}
+// pub fn day7_solve_real_test() {
+//   let assert Ok(in) = simplifile.read(from: "test/inputs/day7")
+//
+//   in
+//   |> day7.solve
+//   |> io.debug
+//   // |> io.debug
+// }
 
 // pub fn day7_ops_test() {
 //   [Num(10), Num(9), Num(8)] |> day7.get_all_operator_combos() |> io.debug

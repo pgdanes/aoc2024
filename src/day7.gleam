@@ -1,4 +1,3 @@
-import gleam/io
 import gleam/int
 import gleam/list
 import gleam/result
@@ -8,7 +7,7 @@ import gleam/string
 pub fn solve(input) {
   let equations = parse(input)
 
-  equations 
+  equations
   |> list.filter(fn(eq) { get_solving_combos(eq) |> list.length > 0 })
   |> list.map(fn(eq) { eq.output })
   |> int.sum
@@ -38,7 +37,7 @@ pub fn get_solving_combos(equation: Equation) {
   operator_combos
   |> list.map(fn(operators) { list.interleave([equation.operands, operators]) })
   |> list.map(eval)
-  |> list.filter(fn(result) { 
+  |> list.filter(fn(result) {
     case result {
       Ok(n) -> n == equation.output
       Error(_) -> False
@@ -53,9 +52,15 @@ pub fn eval(operation: List(Token)) {
   case tokens {
     [Num(x), Operator(Mul), Num(y)] -> eval([Num(x * y), ..rest])
     [Num(x), Operator(Add), Num(y)] -> eval([Num(x + y), ..rest])
+    [Num(x), Operator(Combine), Num(y)] -> eval([Num(combine(x, y)), ..rest])
     [Num(total)] -> Ok(total)
     _ -> Error(Nil)
   }
+}
+
+pub fn combine(x: Int, y: Int) {
+  let combined = int.to_string(x) <> int.to_string(y)
+  int.parse(combined) |> result.unwrap(0)
 }
 
 pub fn get_all_operator_combos(operands: List(Token)) {
@@ -63,7 +68,7 @@ pub fn get_all_operator_combos(operands: List(Token)) {
   list.repeat(0, length)
 
   let all_cs =
-    list.repeat([Operator(Mul), Operator(Add)], length)
+    list.repeat([Operator(Mul), Operator(Add), Operator(Combine)], length)
     |> list.flatten
     |> list.combinations(length)
     |> list.fold(set.new(), fn(s, c) { set.insert(s, c) })
@@ -74,6 +79,7 @@ pub fn get_all_operator_combos(operands: List(Token)) {
 pub type OperatorType {
   Mul
   Add
+  Combine
 }
 
 pub type Token {
