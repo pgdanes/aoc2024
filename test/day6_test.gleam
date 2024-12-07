@@ -14,7 +14,7 @@ pub fn day6_solve_test() {
 #.........
 ......#..."
   |> day6.solve
-  |> io.debug
+  // |> io.debug
 }
 
 pub fn day6_real_solve_test() {
@@ -22,7 +22,7 @@ pub fn day6_real_solve_test() {
 
   in
   |> day6.solve
-  |> io.debug
+  // |> io.debug
 }
 
 pub fn day6_solve_b_test() {
@@ -45,5 +45,5 @@ pub fn day6_solve_b_real_test() {
 
   in
   |> day6.solve_b
-  |> io.debug
+  // |> io.debug
 }
