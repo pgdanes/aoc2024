@@ -1,15 +1,15 @@
+import gleam/dict
+import gleam/float
 import gleam/int
 import gleam/list
 import gleam/result
-import gleam/set
 import gleam/string
 
 pub fn solve(input) {
   let equations = parse(input)
 
   equations
-  |> list.filter(fn(eq) { get_solving_combos(eq) |> list.length > 0 })
-  |> list.map(fn(eq) { eq.output })
+  |> list.filter_map(try_solve(_, [Add, Mul, Combine]))
   |> int.sum
 }
 
@@ -25,68 +25,45 @@ pub fn parse(input) {
       |> string.trim_start()
       |> string.split(" ")
       |> list.map(int.parse)
-      |> list.map(fn(x) { Num(result.unwrap(x, 0)) })
+      |> list.map(fn(x) { result.unwrap(x, 0) })
 
     Equation(output: int.parse(output) |> result.unwrap(0), operands: ops)
   })
 }
 
-pub fn get_solving_combos(equation: Equation) {
-  let operator_combos = get_all_operator_combos(equation.operands)
-
-  operator_combos
-  |> list.map(fn(operators) { list.interleave([equation.operands, operators]) })
-  |> list.map(eval)
-  |> list.filter(fn(result) {
-    case result {
-      Ok(n) -> n == equation.output
-      Error(_) -> False
+fn try_solve(equation, ops) {
+  case equation {
+    Equation(target, [final]) if final == target -> Ok(target)
+    Equation(_, [a, b, ..rest]) -> {
+      list.find_map(ops, fn(op) {
+        let operands = [eval(op, a, b), ..rest]
+        try_solve(Equation(..equation, operands: operands), ops)
+      })
     }
-  })
-}
-
-pub fn eval(operation: List(Token)) {
-  let tokens = operation |> list.take(3)
-  let rest = operation |> list.drop(3)
-
-  case tokens {
-    [Num(x), Operator(Mul), Num(y)] -> eval([Num(x * y), ..rest])
-    [Num(x), Operator(Add), Num(y)] -> eval([Num(x + y), ..rest])
-    [Num(x), Operator(Combine), Num(y)] -> eval([Num(combine(x, y)), ..rest])
-    [Num(total)] -> Ok(total)
     _ -> Error(Nil)
   }
 }
 
+pub fn eval(operator: Operator, x, y: Int) {
+  case x, operator, y {
+    x, Mul, y -> x * y
+    x, Add, y -> x + y
+    x, Combine, y -> combine(x, y)
+  }
+}
+
 pub fn combine(x: Int, y: Int) {
-  let combined = int.to_string(x) <> int.to_string(y)
-  int.parse(combined) |> result.unwrap(0)
+  let assert Ok(y_dig) = int.digits(y, 10)
+  let assert Ok(x_dig) = int.digits(x, 10)
+  list.flatten([x_dig, y_dig]) |> int.undigits(10) |> result.unwrap(0)
 }
 
-pub fn get_all_operator_combos(operands: List(Token)) {
-  let length = list.length(operands) - 1
-  list.repeat(0, length)
-
-  let all_cs =
-    list.repeat([Operator(Mul), Operator(Add), Operator(Combine)], length)
-    |> list.flatten
-    |> list.combinations(length)
-    |> list.fold(set.new(), fn(s, c) { set.insert(s, c) })
-
-  all_cs |> set.to_list()
-}
-
-pub type OperatorType {
+pub type Operator {
   Mul
   Add
   Combine
 }
 
-pub type Token {
-  Operator(OperatorType)
-  Num(Int)
-}
-
 pub type Equation {
-  Equation(output: Int, operands: List(Token))
+  Equation(output: Int, operands: List(Int))
 }
