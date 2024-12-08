@@ -1,44 +1,34 @@
 import gleam/dict
-import gleam/io
 import gleam/list
 import gleam/option.{None, Some}
 import gleam/result
 import gleam/string
 
-pub fn solve(input) {
-  let point_dict = parse(input)
+pub fn solve_a(input) {
+  solve(input, get_antinodes)
+}
+
+pub fn solve_b(input) {
+  solve(input, get_antinodes_b)
+}
+
+pub fn solve(input, antinode_fn: fn(Point, Point, #(Int, Int)) -> List(Point)) {
   let bounds = get_map_bounds(input)
+  let point_dict = parse(input)
 
-  let all_antinodes =
-    point_dict
-    |> dict.keys()
-    |> list.map(fn(key) {
-      let assert Ok(points) = dict.get(point_dict, key)
+  point_dict
+  |> dict.keys()
+  |> list.map(fn(key) {
+    let assert Ok(points) = dict.get(point_dict, key)
 
-      points
-      |> list.combination_pairs()
-      |> list.map(fn(node_pair) {
-        let antinodes = get_antinodes(node_pair.0, node_pair.1)
-        io.debug(#(key, node_pair, antinodes))
-        antinodes
-      })
-    })
-    |> list.flatten
-    |> list.flatten
-
-  let filtered =
-    all_antinodes
-    |> list.filter(fn(antinode) {
-      antinode.0 >= 0
-      && antinode.0 < bounds.0
-      && antinode.1 >= 0
-      && antinode.1 < bounds.1
-    })
-    |> list.unique
-
-  filtered |> list.each(io.debug)
-
-  filtered
+    points
+    |> list.combination_pairs()
+    |> list.map(fn(node_pair) { antinode_fn(node_pair.0, node_pair.1, bounds) })
+  })
+  |> list.flatten
+  |> list.flatten
+  |> list.filter(is_in_bounds(_, bounds))
+  |> list.unique
   |> list.length
 }
 
@@ -68,14 +58,40 @@ pub fn get_map_bounds(input: String) {
   #(row_length, list.length(rows))
 }
 
-pub fn get_antinodes(p1: Point, p2: Point) {
-  let offset = get_vec_between(p1, p2)
+pub fn get_antinodes(p1: Point, p2: Point, bounds: #(Int, Int)) {
+  let offset = distance(p1, p2)
   let reverse_offset = reverse(offset)
 
   [add(p1, reverse_offset), add(p2, offset)]
+  |> list.filter(is_in_bounds(_, bounds))
 }
 
-pub fn get_vec_between(p1: Point, p2: Point) {
+pub fn get_antinodes_b(p1: Point, p2: Point, bounds: #(Int, Int)) {
+  let offset = distance(p1, p2)
+  let reverse_offset = reverse(offset)
+
+  [
+    get_antinodes_rec(p1, reverse_offset, bounds, [p1]),
+    get_antinodes_rec(p2, offset, bounds, [p2]),
+  ]
+  |> list.flatten
+}
+
+pub fn get_antinodes_rec(
+  p1: Point,
+  offset: Point,
+  bounds: #(Int, Int),
+  acc: List(Point),
+) {
+  let new_point = add(p1, offset)
+
+  case is_in_bounds(new_point, bounds) {
+    True -> get_antinodes_rec(new_point, offset, bounds, [new_point, ..acc])
+    False -> acc
+  }
+}
+
+pub fn distance(p1: Point, p2: Point) {
   #(p2.0 - p1.0, p2.1 - p1.1)
 }
 
@@ -85,6 +101,13 @@ pub fn add(p1: Point, p2: Point) {
 
 pub fn reverse(p: Point) {
   #(-p.0, -p.1)
+}
+
+pub fn is_in_bounds(antinode: Point, bounds: #(Int, Int)) {
+  antinode.0 >= 0
+  && antinode.0 < bounds.0
+  && antinode.1 >= 0
+  && antinode.1 < bounds.1
 }
 
 pub type Point =

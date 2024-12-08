@@ -1,21 +1,19 @@
-import day7
-import day6
+import day8
 import gleam/io
 import simplifile
 
 pub type DateTime
 
-// An external function that creates an instance of the type
 @external(erlang, "os", "timestamp")
 pub fn now() -> DateTime
 
 pub fn main() {
-  let assert Ok(in) = simplifile.read(from: "test/inputs/day7")
+  let assert Ok(in) = simplifile.read(from: "test/inputs/day8")
 
   io.debug(now())
 
   in
-  |> day7.solve
+  |> day8.solve_b
   |> io.debug
 
   io.debug(now())

@@ -1,8 +1,5 @@
-import day7
 import day8
-import gleam/io
 import gleeunit/should
-import simplifile
 
 pub fn day8_solve_test() {
   "............
@@ -17,14 +14,37 @@ pub fn day8_solve_test() {
 .........A..
 ............
 ............"
-  |> day8.solve
-  |> io.debug
+  |> day8.solve_a
+  |> should.equal(14)
 }
 
-pub fn day8_solve_real_test() {
-  let assert Ok(in) = simplifile.read(from: "test/inputs/day8")
-
-  in
-  |> day8.solve
-  |> io.debug
+pub fn day8_solve_b_test() {
+  "T.........
+...T......
+.T........
+..........
+..........
+..........
+..........
+..........
+..........
+..........
+"
+  |> day8.solve_b
+  |> should.equal(9)
 }
+// pub fn day8_solve_real_test() {
+//   let assert Ok(in) = simplifile.read(from: "test/inputs/day8")
+//
+//   in
+//   |> day8.solve_a
+//   |> io.debug
+// }
+
+// pub fn day8_solve_real_test() {
+//   let assert Ok(in) = simplifile.read(from: "test/inputs/day8")
+//
+//   in
+//   |> day8.solve_b
+//   |> io.debug
+// }
