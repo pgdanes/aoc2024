@@ -1,7 +1,7 @@
 import gleam/int
 import gleam/io
 import gleam/list
-import gleam/result
+import gleam/set
 import gleam/string
 
 pub fn solve(input: String) {
@@ -105,93 +105,110 @@ pub fn parse_b(input: String) {
   })
 }
 
-pub fn process_b(spans: List(BlockSpan)) {
-  process_b_rec(spans, spans |> list.reverse, [], []) |> debug_spans
+pub fn checksum_b(spans: List(BlockSpan)) {
+  checksum_b_rec(spans, 0, 0)
 }
 
-pub fn process_b_rec(spans, rev, skipped, acc) {
-  io.debug(#("span", render_spans(spans)))
-  io.debug(#("rev", render_spans(rev)))
-  io.debug(#("acc", render_spans(acc |> list.reverse)))
-  io.debug(#("skipped", render_spans(skipped |> list.reverse)))
-  io.println_error("")
+fn checksum_b_rec(spans: List(BlockSpan), offset: Int, acc: Int) {
+  case spans {
+    [] -> acc
+    [EmptySpan(size), ..rest] -> checksum_b_rec(rest, offset + size, acc)
+    [FileSpan(id, size), ..rest] -> {
+      let file_total =
+        list.range(offset, offset + size - 1)
+        // |> io.debug
+        |> list.map(fn(i) { i * id })
+        // |> io.debug
+        |> int.sum
+      // |> io.debug
 
-  case rev, spans {
-    // move file, theres space
-    rev, [FileSpan(id, size), ..spans_rest] -> {
-      process_b_rec(spans_rest, rev, skipped, [FileSpan(id, size), ..acc])
+      checksum_b_rec(rest, offset + size, acc + file_total)
     }
-
-    // move file, theres space
-    [FileSpan(id, size), ..rev_rest], [EmptySpan(space), ..spans_rest]
-      if space >= size
-    -> {
-      case space == size {
-        True ->
-          process_b_rec(spans_rest, rev_rest, skipped, [
-            FileSpan(id, size),
-            ..acc
-          ])
-        False ->
-          process_b_rec(
-            [EmptySpan(space - size), ..spans_rest],
-            rev_rest,
-            skipped,
-            [FileSpan(id, size), ..acc],
-          )
-      }
-    }
-
-    // no space
-    [FileSpan(id, size), ..rev_rest], [EmptySpan(space), ..spans_rest]
-      if space < size
-    -> {
-      process_b_rec(spans_rest, rev_rest, [FileSpan(id, size), ..skipped], [
-        EmptySpan(space),
-        ..acc
-      ])
-    }
-
-    [EmptySpan(space), ..rev_rest], spans 
-    -> {
-      process_b_rec(spans, rev_rest, [EmptySpan(space), ..skipped], acc)
-    }
-
-    _, _ -> acc
   }
 }
 
-// pub fn try_compact_one(spans: List(BlockSpan)) {
-//   use last <- result.try(list.last(spans))
-//   try_compact_one_rec(spans, last, [])
-// }
-//
-// fn try_compact_one_rec(
-//   spans: List(BlockSpan),
-//   span: BlockSpan,
-//   skipped: List(BlockSpan),
-// ) {
-//   io.debug(#("spans", render_spans(spans)))
-//   io.debug(#("skipped", render_spans(skipped)))
-//
-//   case spans, span {
-//     // existing file
-//     [FileSpan(id, size), ..rest], span -> {
-//       try_compact_one_rec(rest, span, [FileSpan(id, size), ..skipped])
-//     }
-//
-//     // can compact
-//     [EmptySpan(space), ..rest], FileSpan(id, size) if space >= size -> {
-//
-//     // have empty but not big enough
-//     [EmptySpan(space), ..], FileSpan(_, size) if space < size -> {
-//       Error(Nil)
-//     }
-//
-//     // why are you trying to compact with empty
-//     _, EmptySpan(_) | [EmptySpan(_), ..], FileSpan(_, _) | [], _ -> Ok(spans)
-//   }
-// }
+pub fn process_b(spans: List(BlockSpan)) {
+  let assert Ok(FileSpan(id, _)) =
+    spans |> list.reverse() |> list.filter(is_file_span) |> list.first()
+
+  process_b_rec(spans, id, set.new(), [])
+}
+
+pub fn process_b_rec(spans, id_to_move, skipped, visited) {
+  let file_to_move =
+    list.find(spans, fn(x) {
+      case x {
+        FileSpan(id, _) -> id == id_to_move
+        EmptySpan(_) -> False
+      }
+    })
+
+  io.println_error("")
+  io.debug(#("file to move", file_to_move))
+
+  case file_to_move, spans {
+    // haven't reached an empty space, just continue
+    Ok(FileSpan(a_id, _)), [FileSpan(b_id, size), ..spans_rest] -> {
+      case a_id == b_id {
+        True -> {
+          // io.debug("found own file adding to skip list")
+          let reset_spans =
+            [visited |> list.reverse(), [FileSpan(b_id, size)], spans_rest]
+            |> list.flatten
+          process_b_rec(reset_spans, id_to_move-1, set.insert(skipped, b_id), [])
+        }
+        False -> {
+          // io.debug("continuing over file until finding empty space")
+          process_b_rec(spans_rest, id_to_move, skipped, [FileSpan(b_id, size), ..visited])
+        }
+      }
+    }
+
+    // empty space found, but too small
+    // continue and see if any other empty spaces will fit it
+    Ok(FileSpan(_, size)), [EmptySpan(space), ..spans_rest] if space < size -> {
+      // io.debug("continuing over empty until finding empty space")
+      process_b_rec(spans_rest, id_to_move, skipped, [EmptySpan(space), ..visited])
+    }
+
+    // move file, theres space, then restart with new file
+    Ok(FileSpan(id, size)), [EmptySpan(space), ..spans_rest] if space >= size -> {
+      io.debug("found space")
+
+      let new_blocks = case space == size {
+        True -> [FileSpan(id, size)]
+        False -> [FileSpan(id, size), EmptySpan(space - size)]
+      }
+
+      let others =
+        spans_rest
+        |> list.map(fn(x) {
+          case x {
+            FileSpan(other_id, other_size) if id == other_id ->
+              EmptySpan(other_size)
+            _ -> x
+          }
+        })
+
+      let new_spans =
+        [visited |> list.reverse(), new_blocks, others]
+        |> list.flatten()
+
+      process_b_rec(new_spans, id_to_move-1, skipped, [])
+    }
+
+    Ok(FileSpan(id, _)), [] -> {
+      // io.debug("reached end, adding to skip list")
+      // we've skipped one, gotta restart to try new file
+      let reset_spans = visited |> list.reverse()
+      process_b_rec(reset_spans, id_to_move-1, set.insert(skipped, id), [])
+    }
+
+    // we've run out of files to move
+    Error(_), _ -> spans
+    _, _ -> spans
+  }
+}
 
 pub type Block {
   File(id: Int)
@@ -232,4 +249,11 @@ pub fn render_spans(spans) {
 pub fn debug_spans(spans: List(BlockSpan)) {
   io.debug(render_spans(spans))
   spans
+}
+
+pub fn is_file_span(span: BlockSpan) {
+  case span {
+    FileSpan(_, _) -> True
+    _ -> False
+  }
 }
