@@ -50,8 +50,7 @@ fn split_with_previous_count(items: List(#(Int, Int))) {
   })
 }
 
-fn initial_counts(nums: List(Int))
-{
+fn initial_counts(nums: List(Int)) {
   list.fold(nums, dict.new(), fn(acc, curr) {
     dict.upsert(acc, curr, fn(result) {
       case result {
@@ -61,6 +60,7 @@ fn initial_counts(nums: List(Int))
     })
   })
 }
+
 fn count_stones(nums: List(#(Int, Int))) {
   use d, item <- list.fold(nums, dict.new())
   let #(label, size) = item

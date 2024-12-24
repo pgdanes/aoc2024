@@ -29,8 +29,8 @@ pub fn solve_b(in) {
   parse(in)
   |> list.filter_map(fn(machine) {
     let assert [xa, ya, xb, yb, base_rx, base_ry] = machine
-    let rx = base_rx + 10000000000000
-    let ry = base_ry + 10000000000000
+    let rx = base_rx + 10_000_000_000_000
+    let ry = base_ry + 10_000_000_000_000
 
     let #(a_count, b_count) = get_counts(xa, ya, xb, yb, rx, ry)
     let valid = is_counts_valid(a_count, b_count, xa, ya, xb, yb, rx, ry)

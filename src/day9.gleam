@@ -155,11 +155,19 @@ pub fn process_b_rec(spans, id_to_move, skipped, visited) {
           let reset_spans =
             [visited |> list.reverse(), [FileSpan(b_id, size)], spans_rest]
             |> list.flatten
-          process_b_rec(reset_spans, id_to_move-1, set.insert(skipped, b_id), [])
+          process_b_rec(
+            reset_spans,
+            id_to_move - 1,
+            set.insert(skipped, b_id),
+            [],
+          )
         }
         False -> {
           // io.debug("continuing over file until finding empty space")
-          process_b_rec(spans_rest, id_to_move, skipped, [FileSpan(b_id, size), ..visited])
+          process_b_rec(spans_rest, id_to_move, skipped, [
+            FileSpan(b_id, size),
+            ..visited
+          ])
         }
       }
     }
@@ -168,7 +176,10 @@ pub fn process_b_rec(spans, id_to_move, skipped, visited) {
     // continue and see if any other empty spaces will fit it
     Ok(FileSpan(_, size)), [EmptySpan(space), ..spans_rest] if space < size -> {
       // io.debug("continuing over empty until finding empty space")
-      process_b_rec(spans_rest, id_to_move, skipped, [EmptySpan(space), ..visited])
+      process_b_rec(spans_rest, id_to_move, skipped, [
+        EmptySpan(space),
+        ..visited
+      ])
     }
 
     // move file, theres space, then restart with new file
@@ -194,14 +205,14 @@ pub fn process_b_rec(spans, id_to_move, skipped, visited) {
         [visited |> list.reverse(), new_blocks, others]
         |> list.flatten()
 
-      process_b_rec(new_spans, id_to_move-1, skipped, [])
+      process_b_rec(new_spans, id_to_move - 1, skipped, [])
     }
 
     Ok(FileSpan(id, _)), [] -> {
       // io.debug("reached end, adding to skip list")
       // we've skipped one, gotta restart to try new file
       let reset_spans = visited |> list.reverse()
-      process_b_rec(reset_spans, id_to_move-1, set.insert(skipped, id), [])
+      process_b_rec(reset_spans, id_to_move - 1, set.insert(skipped, id), [])
     }
 
     // we've run out of files to move

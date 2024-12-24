@@ -1,5 +1,5 @@
-import day9
 import day8
+import day9
 import gleam/io
 import simplifile
 

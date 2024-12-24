@@ -1,6 +1,5 @@
 import day11
 import gleam/io
-
 // pub fn day11_test() {
 //   "0 1 10 99 999"
 //   |> day11.solve
@@ -22,4 +21,3 @@ import gleam/io
 // pub fn day11_split_test() {
 //   1000 |> day11.split_stone |> io.debug
 // }
-

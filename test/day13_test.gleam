@@ -1,6 +1,6 @@
-import simplifile
-import gleam/io
 import day13
+import gleam/io
+import simplifile
 
 pub fn day13_test() {
   "Button A: X+94, Y+34
