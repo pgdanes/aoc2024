@@ -1,5 +1,4 @@
-import day8
-import day9
+import day14
 import gleam/io
 import simplifile
 
@@ -9,14 +8,13 @@ pub type DateTime
 pub fn now() -> DateTime
 
 pub fn main() {
-  let assert Ok(in) = simplifile.read(from: "test/inputs/day9")
+  let assert Ok(in) = simplifile.read(from: "test/inputs/day14")
 
   io.debug(now())
 
+
   in
-  |> day9.solve_b
-  |> day9.checksum_b
-  |> io.debug
+  |> day14.solve_b
 
   io.debug(now())
 }

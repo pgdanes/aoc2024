@@ -1,6 +1,5 @@
 import gleam/bool
 import gleam/int
-import gleam/iterator
 import gleam/list
 import gleam/otp/task
 import gleam/result

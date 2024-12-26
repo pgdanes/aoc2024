@@ -8,12 +8,12 @@ pub fn add(a: Vector, b: Vector) {
   #(a.0 + b.0, a.1 + b.1)
 }
 
-pub fn minus(a: Vector, b: Vector) {
+pub fn sub(a: Vector, b: Vector) {
   #(a.0 - b.0, a.1 - b.1)
 }
 
 pub fn distance(a, b) {
-  minus(b, a)
+  sub(b, a)
 }
 
 pub fn reverse(a: Vector) {

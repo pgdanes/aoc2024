@@ -12,6 +12,7 @@ packages = [
 ]
 
 [requirements]
+gleam_erlang = { version = ">= 0.33.0 and < 1.0.0" }
 gleam_otp = { version = ">= 0.14.1 and < 1.0.0" }
 gleam_regexp = { version = ">= 1.0.0 and < 2.0.0" }
 gleam_stdlib = { version = ">= 0.34.0 and < 2.0.0" }

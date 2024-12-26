@@ -2,7 +2,6 @@ import gleam/bool
 import gleam/dict
 import gleam/int
 import gleam/list
-import gleam/result
 import gleam/string
 
 pub fn solve(input: String) {

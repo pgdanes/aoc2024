@@ -1,8 +1,6 @@
 import gleam/dict
-import gleam/io
 import gleam/list
 import gleam/option.{None, Some}
-import gleam/string
 import parse
 import vec
 
