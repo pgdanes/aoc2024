@@ -12,7 +12,6 @@ pub fn main() {
 
   io.debug(now())
 
-
   in
   |> day14.solve_b
 

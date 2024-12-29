@@ -1,5 +1,5 @@
-import gleam/erlang/process
 import gleam/dict
+import gleam/erlang/process
 import gleam/int
 import gleam/io
 import gleam/list
@@ -17,7 +17,8 @@ pub fn solve_b(in) {
   let start = parse(in)
 
   // looks like it repeats on every 103 iterations starting on 134
-  list.range(1, 100) |> list.map(fn(x) { 134 + { x * 103 } })
+  list.range(1, 100)
+  |> list.map(fn(x) { 134 + { x * 103 } })
   |> list.each(fn(time) {
     start
     |> list.filter_map(fn(r) { move_robot(r, time, #(101, 103)) })
@@ -107,7 +108,6 @@ pub fn draw_map(robots: List(Robot), bounds: #(Int, Int)) {
     False, x -> io.print_error(int.to_string(x))
   }
 }
-
 // ..................1.....................................................1..........................1.
 // .....................................................................................................
 // .....................................................................................................

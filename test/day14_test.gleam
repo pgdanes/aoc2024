@@ -1,15 +1,15 @@
-import simplifile
-import gleam/dict
-import day14
-import gleam/io
-import gleam/list
+// import simplifile
+// import gleam/dict
+// import day14
+// import gleam/io
+// import gleam/list
 
-pub fn day14_real_test() {
-  let assert Ok(in) = simplifile.read(from: "test/inputs/day14")
-
-  in
-  |> day14.solve_b
-}
+// pub fn day14_real_test() {
+//   let assert Ok(in) = simplifile.read(from: "test/inputs/day14")
+//
+//   in
+//   |> day14.solve_b
+// }
 
 // pub fn day14_scratch_test() {
 //   let robots =
