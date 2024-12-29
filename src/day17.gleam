@@ -20,6 +20,51 @@ pub fn new_computer() {
   Computer(program: "", reg_a: 0, reg_b: 0, reg_c: 0, iptr: 0, output: [])
 }
 
+/// This works by solving the last part and working it's way backwards
+/// 1. initially try all values of 0-7 in reg a and find the value of a that will output "0"
+/// 2. using that list of values, multiply each by 8 and then iterate through 0-7 for that 
+///   to see which values will then output the next end "3,0"
+/// NOTE: I saw a trend of 8 by brute forcing originally, but believe this works because 
+///       OUT instruction modulo's the operand by 8
+/// 3. iterate, trying out each - a DFS
+///
+/// e.g. 
+/// [3] = "0"
+/// [24, 31] = "3,0"
+/// [199, 255, ...] = "3,3,0"
+/// etc..
+pub fn get_quine(program, i, a) {
+  let drop_amount = string.length(program) - { i * 2 + 1 }
+  let partial_program = string.drop_start(program, drop_amount)
+  io.debug(#(i, a, partial_program))
+
+  let valid_candidates =
+    list.range(0, 7)
+    |> list.filter_map(fn(n) {
+      let candidate = { 8 * a } + n
+      let output =
+        Computer(..new_computer(), reg_a: candidate)
+        |> load_program(program)
+        |> execute_program()
+        |> get_output()
+
+      case output == partial_program {
+        True -> Ok(#(candidate, output))
+        False -> Error(Nil)
+      }
+    })
+
+  let solution = valid_candidates |> list.find(fn(c) { c.1 == program })
+  case solution {
+    Ok(s) -> [s.0]
+    Error(_) -> {
+      io.debug(valid_candidates)
+      valid_candidates
+      |> list.flat_map(fn(c) { get_quine(program, i + 1, c.0) })
+    }
+  }
+}
+
 pub type Opcode {
   ADV(Int)
   BXL(Int)
@@ -40,7 +85,6 @@ pub fn execute_program(computer: Computer) {
   let execute_program_step = fn() {
     use opcode <- result.try(get_next_opcode(computer))
     use next_computer <- result.try(execute_opcode(computer, opcode))
-    // io.debug(#(opcode, next_computer.reg_a))
     Ok(next_computer)
   }
 
