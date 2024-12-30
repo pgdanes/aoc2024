@@ -2,6 +2,7 @@ import char
 import gleam/dict
 import gleam/function
 import gleam/int
+import gleam/io
 import gleam/list
 import gleam/result
 import gleam/string
@@ -13,13 +14,26 @@ pub fn solve(in) {
   in
   |> string.trim()
   |> string.split("\n")
-  |> list.map(get_code_complexity)
+  |> list.map(get_code_complexity(_, 2))
   |> list.filter_map(function.identity)
   |> int.sum
 }
 
-pub fn get_code_complexity(seq) {
-  let shortest_sequence = get_chained_sequence(seq)
+pub fn build_movement_map(keypad: KeyLocations) {
+  {
+    let keys = dict.keys(keypad)
+    use a <- list.flat_map(keys)
+    use b <- list.filter_map(keys)
+
+    let pair = #(a, b)
+    use movement <- result.try(get_movement_to_key(keypad, pair.0, pair.1))
+    Ok(#(#(pair.0, pair.1), movement))
+  }
+  |> dict.from_list
+}
+
+pub fn get_code_complexity(seq, robot_count: Int) {
+  let shortest_sequence = get_chained_sequence(seq, robot_count)
   use nums <- result.try(
     seq
     |> string.to_graphemes
@@ -31,26 +45,33 @@ pub fn get_code_complexity(seq) {
   Ok(string.length(shortest_sequence) * nums)
 }
 
-pub fn get_chained_sequence(seq) {
+pub fn get_chained_sequence(seq, robot_count: Int) {
   let big_key_locs = build_big_keypad()
-  let small_key_locs = build_small_keypad()
+  let big_movement_map = build_movement_map(big_key_locs)
 
-  seq
-  |> get_movement_string(big_key_locs, start: "A")
-  |> get_movement_string(small_key_locs, start: "A")
-  |> get_movement_string(small_key_locs, start: "A")
+  let small_key_locs = build_small_keypad()
+  let small_movement_map = build_movement_map(small_key_locs)
+
+  let big_key_seq =
+    seq
+    |> get_movement_string(big_movement_map, start: "A")
+
+  list.range(0, robot_count - 1)
+  |> list.fold(big_key_seq, fn(last_seq, _n) {
+    get_movement_string(last_seq, small_movement_map, start: "A")
+  })
 }
 
 fn get_movement_string(
   input_seq: String,
-  key_locations: KeyLocations,
+  movement_map: dict.Dict(#(String, String), String),
   start starting_key: String,
 ) {
   string.to_graphemes(input_seq)
   |> list.prepend(starting_key)
   |> list.window_by_2()
   |> list.filter_map(fn(movement) {
-    get_movement_to_key(key_locations, movement.0, movement.1)
+    dict.get(movement_map, #(movement.0, movement.1))
   })
   |> string.join("")
 }
